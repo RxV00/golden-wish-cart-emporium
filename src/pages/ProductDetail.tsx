@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, ShoppingCart, Heart } from 'lucide-react';
@@ -10,7 +9,7 @@ import { useWishlist } from '@/contexts/WishlistContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { Toaster } from '@/components/ui/sonner';
+import { Toaster } from 'sonner';
 
 const ProductDetail = () => {
   const { productId } = useParams<{ productId: string }>();
@@ -163,7 +162,7 @@ const ProductDetail = () => {
         </Card>
       </main>
       <Footer />
-      <Toaster position="top-right" />
+      <Toaster position="bottom-right" />
     </div>
   );
 };

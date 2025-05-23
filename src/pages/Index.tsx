@@ -15,7 +15,7 @@ const Index = () => {
       <DealsCarousel />
       <ProductGrid />
       <Footer />
-      <Toaster position="top-right" />
+      <Toaster position="bottom-right" />
     </div>
   );
 };
