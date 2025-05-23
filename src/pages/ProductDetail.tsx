@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, ShoppingCart, Heart } from 'lucide-react';
 import { mockProducts } from '@/data/mockProducts';
@@ -18,6 +18,8 @@ const ProductDetail = () => {
   
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [isTogglingWishlist, setIsTogglingWishlist] = useState(false);
   
   if (!product) {
     return (
@@ -41,6 +43,8 @@ const ProductDetail = () => {
   const isWishlisted = isInWishlist(product.id);
   
   const handleWishlistClick = () => {
+    setIsTogglingWishlist(true);
+    
     if (isWishlisted) {
       removeFromWishlist(product.id);
       toast.success("Removed from wishlist");
@@ -48,11 +52,20 @@ const ProductDetail = () => {
       addToWishlist(product);
       toast.success("Added to wishlist");
     }
+    
+    setTimeout(() => {
+      setIsTogglingWishlist(false);
+    }, 300);
   };
 
   const handleAddToCart = () => {
+    setIsAddingToCart(true);
     addToCart(product);
     toast.success("Added to cart");
+    
+    setTimeout(() => {
+      setIsAddingToCart(false);
+    }, 500);
   };
 
   return (
@@ -105,21 +118,29 @@ const ProductDetail = () => {
             <div className="pt-4 flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
               <Button 
                 onClick={handleAddToCart}
-                className="flex-1 bg-forest-green text-cream hover:bg-forest-green/90 py-6"
+                className={`flex-1 bg-forest-green text-cream hover:bg-forest-green/90 py-6 transition-all duration-300 ${
+                  isAddingToCart ? 'animate-pulse scale-95' : ''
+                }`}
+                disabled={isAddingToCart}
               >
-                <ShoppingCart className="mr-2 h-5 w-5" />
-                Add to Cart
+                <ShoppingCart className={`mr-2 h-5 w-5 ${isAddingToCart ? 'animate-spin' : ''}`} />
+                {isAddingToCart ? 'Adding to Cart...' : 'Add to Cart'}
               </Button>
               <Button 
                 onClick={handleWishlistClick}
                 variant="outline"
+                disabled={isTogglingWishlist}
                 className={`${
                   isWishlisted 
                     ? 'bg-red-500 text-white border-red-500 hover:bg-red-600' 
                     : 'bg-cream border-forest-green text-forest-green hover:bg-forest-green hover:text-cream'
+                } transition-all duration-300 ${
+                  isTogglingWishlist ? 'scale-95' : ''
                 }`}
               >
-                <Heart className={`mr-2 h-5 w-5 ${isWishlisted ? 'fill-current' : ''}`} />
+                <Heart className={`mr-2 h-5 w-5 ${isWishlisted ? 'fill-current' : ''} ${
+                  isTogglingWishlist ? 'animate-pulse' : ''
+                }`} />
                 {isWishlisted ? 'In Wishlist' : 'Add to Wishlist'}
               </Button>
             </div>

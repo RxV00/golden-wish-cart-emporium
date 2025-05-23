@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Heart, ShoppingCart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { Product } from '@/types/product';
+import { toast } from 'sonner';
 
 interface ProductCardProps {
   product: Product;
@@ -13,21 +14,37 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [isTogglingWishlist, setIsTogglingWishlist] = useState(false);
   
   const isWishlisted = isInWishlist(product.id);
 
   const handleWishlistClick = (e: React.MouseEvent) => {
     e.preventDefault();
+    setIsTogglingWishlist(true);
+    
     if (isWishlisted) {
       removeFromWishlist(product.id);
+      toast.success("Removed from wishlist");
     } else {
       addToWishlist(product);
+      toast.success("Added to wishlist");
     }
+    
+    setTimeout(() => {
+      setIsTogglingWishlist(false);
+    }, 300);
   };
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
+    setIsAddingToCart(true);
     addToCart(product);
+    toast.success("Added to cart");
+    
+    setTimeout(() => {
+      setIsAddingToCart(false);
+    }, 500);
   };
 
   return (
@@ -41,13 +58,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           />
           <button
             onClick={handleWishlistClick}
-            className={`absolute top-4 right-4 p-2 rounded-full transition-colors duration-300 ${
+            className={`absolute top-4 right-4 p-2 rounded-full transition-all duration-300 ${
+              isTogglingWishlist ? 'scale-125' : ''
+            } ${
               isWishlisted 
                 ? 'bg-red-500 text-white' 
                 : 'bg-white/80 text-forest-green hover:bg-white'
             }`}
           >
-            <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-current' : ''}`} />
+            <Heart className={`w-5 h-5 transition-transform ${isWishlisted ? 'fill-current' : ''} ${
+              isTogglingWishlist ? 'animate-pulse' : ''
+            }`} />
           </button>
         </div>
         
@@ -64,10 +85,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           
           <button
             onClick={handleAddToCart}
-            className="w-full bg-forest-green text-cream py-3 rounded-lg hover:bg-forest-green-dark transition-colors duration-300 flex items-center justify-center space-x-2 font-semibold"
+            className={`w-full bg-forest-green text-cream py-3 rounded-lg hover:bg-forest-green-dark transition-all duration-300 flex items-center justify-center space-x-2 font-semibold ${
+              isAddingToCart ? 'animate-pulse scale-95' : ''
+            }`}
           >
-            <ShoppingCart className="w-5 h-5" />
-            <span>Add to Cart</span>
+            <ShoppingCart className={`w-5 h-5 ${isAddingToCart ? 'animate-spin' : ''}`} />
+            <span>{isAddingToCart ? 'Adding...' : 'Add to Cart'}</span>
           </button>
         </div>
       </div>
