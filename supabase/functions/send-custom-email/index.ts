@@ -250,7 +250,7 @@ const handler = async (req: Request): Promise<Response> => {
     const firstName = user.user_metadata?.first_name || "";
     
     const emailResponse = await resend.emails.send({
-      from: "Lumière Jewelry <welcome@lumiere-jewelry.com>",
+      from: "Lumière Jewelry <onboarding@resend.dev>",
       to: [user.email],
       subject: "✨ Welcome to Lumière Jewelry - Confirm Your Account",
       html: generateConfirmationEmail(firstName, confirmationUrl),
