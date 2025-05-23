@@ -224,17 +224,53 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     if (!hookSecret) {
-      throw new Error("SEND_EMAIL_HOOK_SECRET is not set");
+      console.error("Missing SEND_EMAIL_HOOK_SECRET environment variable");
+      return new Response(
+        JSON.stringify({ error: "Webhook secret not configured" }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
     }
 
+    // Log the request information for debugging
+    console.log("Request received:", {
+      method: req.method,
+      url: req.url,
+      headers: Object.fromEntries(req.headers),
+    });
+    
     const payload = await req.text();
     const headers = Object.fromEntries(req.headers);
     
+    // Create new webhook instance with the secret
     const wh = new Webhook(hookSecret);
+    
+    let verifiedPayload;
+    try {
+      // Verify the webhook signature
+      verifiedPayload = wh.verify(payload, headers) as WebhookPayload;
+      console.log("Webhook verification successful");
+    } catch (verifyError) {
+      console.error("Webhook verification failed:", verifyError);
+      return new Response(
+        JSON.stringify({ 
+          error: "Webhook verification failed", 
+          details: verifyError.message,
+          receivedHeaders: headers
+        }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
     const {
       user,
       email_data: { token_hash, redirect_to, email_action_type },
-    } = wh.verify(payload, headers) as WebhookPayload;
+    } = verifiedPayload;
 
     // Only handle signup confirmations
     if (email_action_type !== "signup") {
@@ -244,7 +280,7 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") || "https://acpgpktowymatigrgwuv.supabase.co";
     const confirmationUrl = `${supabaseUrl}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to}`;
     
     const firstName = user.user_metadata?.first_name || "";
@@ -268,7 +304,10 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error("Error in send-custom-email function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        stack: error.stack
+      }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
