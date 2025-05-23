@@ -116,7 +116,16 @@ const Auth = () => {
           formData.lastName
         );
         
-        if (error) {
+        console.log('Auth: Sign up response data:', data);
+        console.log('Auth: Sign up response error:', error);
+        
+        // Check if this is a repeated signup attempt (user already exists)
+        if (data?.user && !data?.session && !error) {
+          // This indicates the user already exists but email wasn't confirmed yet
+          console.log('Auth: Detected repeated signup for existing user');
+          toast.error('This email address is already registered. Please check your email for the confirmation link or sign in instead.');
+          setIsLogin(true);
+        } else if (error) {
           console.error('Auth: Sign up error:', error);
           if (error.message.includes('User already registered') || 
               error.message.includes('already registered') ||
@@ -130,13 +139,19 @@ const Auth = () => {
           } else {
             toast.error(`Sign up failed: ${error.message}`);
           }
-        } else {
-          console.log('Auth: Sign up successful:', data);
+        } else if (data?.user && data?.user.email_confirmed_at === null) {
+          // Successfully created new user - needs email confirmation
+          console.log('Auth: Sign up successful - new user created:', data);
           toast.success('Account created successfully! Please check your email to verify your account before signing in.', {
             duration: 6000,
           });
           setIsLogin(true);
           setFormData(prev => ({ ...prev, password: '' }));
+        } else {
+          // User was created and already confirmed (shouldn't happen with email confirmation enabled)
+          console.log('Auth: Sign up successful - user already confirmed:', data);
+          toast.success('Account created successfully!');
+          navigate('/');
         }
       }
     } catch (error: any) {
