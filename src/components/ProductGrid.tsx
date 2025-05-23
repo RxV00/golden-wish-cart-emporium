@@ -9,7 +9,8 @@ const ProductGrid = () => {
   const [filters, setFilters] = useState({
     category: '',
     priceRange: '',
-    material: ''
+    material: '',
+    color: ''
   });
 
   const handleFilterChange = (newFilters: typeof filters) => {
@@ -34,6 +35,10 @@ const ProductGrid = () => {
     
     if (newFilters.material) {
       filtered = filtered.filter(product => product.material === newFilters.material);
+    }
+    
+    if (newFilters.color) {
+      filtered = filtered.filter(product => product.color === newFilters.color);
     }
     
     setFilteredProducts(filtered);

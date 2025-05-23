@@ -9,7 +9,8 @@ export const mockProducts: Product[] = [
     price: 2500,
     image: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=400&fit=crop',
     category: 'Ring',
-    material: 'Diamond'
+    material: 'Diamond',
+    color: 'White'
   },
   {
     id: '2',
@@ -18,7 +19,8 @@ export const mockProducts: Product[] = [
     price: 450,
     image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=400&fit=crop',
     category: 'Necklace',
-    material: 'Gold'
+    material: 'Gold',
+    color: 'Yellow'
   },
   {
     id: '3',
@@ -27,7 +29,8 @@ export const mockProducts: Product[] = [
     price: 350,
     image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400&h=400&fit=crop',
     category: 'Earrings',
-    material: 'Gold'
+    material: 'Gold',
+    color: 'Rose'
   },
   {
     id: '4',
@@ -36,7 +39,8 @@ export const mockProducts: Product[] = [
     price: 1800,
     image: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400&h=400&fit=crop',
     category: 'Bracelet',
-    material: 'Platinum'
+    material: 'Platinum',
+    color: 'White'
   },
   {
     id: '5',
@@ -45,7 +49,8 @@ export const mockProducts: Product[] = [
     price: 3200,
     image: 'https://images.unsplash.com/photo-1606808842584-8e5d4b36f5b2?w=400&h=400&fit=crop',
     category: 'Ring',
-    material: 'Diamond'
+    material: 'Diamond',
+    color: 'White'
   },
   {
     id: '6',
@@ -54,7 +59,8 @@ export const mockProducts: Product[] = [
     price: 120,
     image: 'https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=400&h=400&fit=crop',
     category: 'Necklace',
-    material: 'Silver'
+    material: 'Silver',
+    color: 'White'
   },
   {
     id: '7',
@@ -63,7 +69,8 @@ export const mockProducts: Product[] = [
     price: 850,
     image: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=400&fit=crop',
     category: 'Earrings',
-    material: 'Diamond'
+    material: 'Diamond',
+    color: 'White'
   },
   {
     id: '8',
@@ -72,6 +79,7 @@ export const mockProducts: Product[] = [
     price: 680,
     image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=400&fit=crop',
     category: 'Bracelet',
-    material: 'Gold'
+    material: 'Gold',
+    color: 'Yellow'
   }
 ];

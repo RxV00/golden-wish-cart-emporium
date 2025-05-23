@@ -13,7 +13,7 @@ import {
 import { Button } from '@/components/ui/button';
 
 interface FilterProps {
-  onFilterChange: (filters: { category: string; priceRange: string; material: string }) => void;
+  onFilterChange: (filters: { category: string; priceRange: string; material: string; color: string }) => void;
 }
 
 const ProductFilter: React.FC<FilterProps> = ({ onFilterChange }) => {
@@ -21,12 +21,14 @@ const ProductFilter: React.FC<FilterProps> = ({ onFilterChange }) => {
   const [filters, setFilters] = useState({
     category: '',
     priceRange: '',
-    material: ''
+    material: '',
+    color: ''
   });
 
   const categories = ['', 'Ring', 'Necklace', 'Earrings', 'Bracelet'];
   const priceRanges = ['', '0-500', '500-1000', '1000-2000', '2000'];
   const materials = ['', 'Gold', 'Silver', 'Platinum', 'Diamond'];
+  const colors = ['', 'Yellow', 'White', 'Rose', 'Black', 'Blue'];
 
   const handleFilterChange = (key: string, value: string) => {
     const newFilters = { ...filters, [key]: value };
@@ -35,7 +37,7 @@ const ProductFilter: React.FC<FilterProps> = ({ onFilterChange }) => {
   };
 
   const clearFilters = () => {
-    const clearedFilters = { category: '', priceRange: '', material: '' };
+    const clearedFilters = { category: '', priceRange: '', material: '', color: '' };
     setFilters(clearedFilters);
     onFilterChange(clearedFilters);
   };
@@ -79,6 +81,23 @@ const ProductFilter: React.FC<FilterProps> = ({ onFilterChange }) => {
     </div>
   );
 
+  const renderColorOptions = () => (
+    <div className="mb-4">
+      <label className="block text-sm font-medium text-forest-green mb-2">Color</label>
+      <ToggleGroup type="single" value={filters.color} onValueChange={(value) => handleFilterChange('color', value || '')}>
+        {colors.map((color) => (
+          <ToggleGroupItem 
+            key={color} 
+            value={color} 
+            className={`${filters.color === color ? 'bg-forest-green text-cream' : 'bg-cream text-forest-green'}`}
+          >
+            {color || 'All'}
+          </ToggleGroupItem>
+        ))}
+      </ToggleGroup>
+    </div>
+  );
+
   // For mobile view
   const mobileFilters = () => (
     <div className="md:hidden">
@@ -95,6 +114,7 @@ const ProductFilter: React.FC<FilterProps> = ({ onFilterChange }) => {
           {renderCategoryOptions()}
           {renderPriceOptions()}
           {renderMaterialOptions()}
+          {renderColorOptions()}
           <Button 
             onClick={clearFilters} 
             className="w-full bg-cream border-2 border-forest-green text-forest-green hover:bg-forest-green hover:text-cream transition-colors duration-300"
@@ -142,7 +162,18 @@ const ProductFilter: React.FC<FilterProps> = ({ onFilterChange }) => {
         </PopoverContent>
       </Popover>
 
-      {(filters.category || filters.priceRange || filters.material) && (
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="outline" className="bg-cream border-forest-green text-forest-green hover:bg-forest-green hover:text-cream">
+            Color
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-4 bg-white border-forest-green">
+          {renderColorOptions()}
+        </PopoverContent>
+      </Popover>
+
+      {(filters.category || filters.priceRange || filters.material || filters.color) && (
         <Button 
           onClick={clearFilters} 
           variant="outline" 
