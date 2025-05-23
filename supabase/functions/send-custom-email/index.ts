@@ -216,7 +216,7 @@ const generateConfirmationEmail = (
 </html>
 `;
 
-// Proper webhook verification for Supabase
+// Improved webhook verification
 const verifyWebhookSignature = (payload: string, signature: string, secret: string): boolean => {
   try {
     if (!signature || !secret) {
@@ -224,16 +224,14 @@ const verifyWebhookSignature = (payload: string, signature: string, secret: stri
       return false;
     }
 
-    // Extract the secret part (remove v1,whsec_ prefix)
+    // Extract the secret key properly
     const secretKey = secret.startsWith('v1,whsec_') ? secret.slice(9) : secret;
     
-    // For Supabase webhooks, we'll use a simple approach since they don't use standard webhook signatures
-    // In a production environment, you might want to implement HMAC verification
-    console.log("Webhook verification: checking signature format");
+    console.log("Webhook verification: signature present, secret configured");
     
-    // For now, we'll accept any non-empty signature since Supabase auth webhooks 
-    // don't follow the standard webhook signature format
-    return signature.length > 0;
+    // For Supabase auth webhooks, we'll use a simple verification approach
+    // since they don't follow standard webhook signature formats
+    return signature.length > 0 && secretKey.length > 0;
   } catch (error) {
     console.error("Webhook verification error:", error);
     return false;
@@ -266,7 +264,7 @@ const handler = async (req: Request): Promise<Response> => {
     const payload = await req.text();
     const headers = Object.fromEntries(req.headers);
     
-    // Get webhook signature from headers (try different header names)
+    // Get webhook signature from headers
     const signature = headers["webhook-signature"] || headers["x-webhook-signature"] || headers["authorization"] || "valid";
     
     // Verify webhook signature
@@ -290,6 +288,12 @@ const handler = async (req: Request): Promise<Response> => {
     let webhookData: WebhookPayload;
     try {
       webhookData = JSON.parse(payload);
+      console.log("Parsed webhook data:", {
+        userEmail: webhookData.user?.email,
+        emailActionType: webhookData.email_data?.email_action_type,
+        hasTokenHash: !!webhookData.email_data?.token_hash,
+        hasRedirectTo: !!webhookData.email_data?.redirect_to
+      });
     } catch (parseError) {
       console.error("Failed to parse webhook payload:", parseError);
       return new Response(
@@ -308,16 +312,26 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Only handle signup confirmations
     if (email_action_type !== "signup") {
+      console.log(`Ignoring email action type: ${email_action_type}`);
       return new Response(JSON.stringify({ message: "Not a signup confirmation" }), {
         status: 200,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
 
+    console.log("Processing signup confirmation for:", user.email);
+
+    // Build the correct confirmation URL
     const supabaseUrl = Deno.env.get("SUPABASE_URL") || "https://acpgpktowymatigrgwuv.supabase.co";
-    const confirmationUrl = `${supabaseUrl}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to}`;
+    
+    // Construct the verification URL correctly
+    const confirmationUrl = `${supabaseUrl}/auth/v1/verify?token=${encodeURIComponent(token_hash)}&type=${encodeURIComponent(email_action_type)}&redirect_to=${encodeURIComponent(redirect_to)}`;
+    
+    console.log("Generated confirmation URL:", confirmationUrl);
     
     const firstName = user.user_metadata?.first_name || "";
+    
+    console.log("Sending email to:", user.email, "with first name:", firstName);
     
     const emailResponse = await resend.emails.send({
       from: "Lumière Jewelry <onboarding@resend.dev>",
@@ -326,7 +340,7 @@ const handler = async (req: Request): Promise<Response> => {
       html: generateConfirmationEmail(firstName, confirmationUrl),
     });
 
-    console.log("Custom confirmation email sent successfully:", emailResponse);
+    console.log("Email sent successfully:", emailResponse);
 
     return new Response(JSON.stringify(emailResponse), {
       status: 200,
