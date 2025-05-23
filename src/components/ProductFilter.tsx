@@ -1,6 +1,16 @@
 
 import React, { useState } from 'react';
 import { Filter } from 'lucide-react';
+import { 
+  Popover, 
+  PopoverContent, 
+  PopoverTrigger 
+} from '@/components/ui/popover';
+import { 
+  ToggleGroup, 
+  ToggleGroupItem 
+} from '@/components/ui/toggle-group';
+import { Button } from '@/components/ui/button';
 
 interface FilterProps {
   onFilterChange: (filters: { category: string; priceRange: string; material: string }) => void;
@@ -30,73 +40,124 @@ const ProductFilter: React.FC<FilterProps> = ({ onFilterChange }) => {
     onFilterChange(clearedFilters);
   };
 
-  return (
-    <div className="mb-8">
-      <button
+  const renderCategoryOptions = () => (
+    <div className="mb-4">
+      <label className="block text-sm font-medium text-forest-green mb-2">Category</label>
+      <ToggleGroup type="single" value={filters.category} onValueChange={(value) => handleFilterChange('category', value || '')}>
+        {categories.map((category) => (
+          <ToggleGroupItem key={category} value={category} className={`${filters.category === category ? 'bg-forest-green text-cream' : 'bg-cream text-forest-green'}`}>
+            {category || 'All'}
+          </ToggleGroupItem>
+        ))}
+      </ToggleGroup>
+    </div>
+  );
+
+  const renderPriceOptions = () => (
+    <div className="mb-4">
+      <label className="block text-sm font-medium text-forest-green mb-2">Price Range</label>
+      <ToggleGroup type="single" value={filters.priceRange} onValueChange={(value) => handleFilterChange('priceRange', value || '')}>
+        {priceRanges.map((range) => (
+          <ToggleGroupItem key={range} value={range} className={`${filters.priceRange === range ? 'bg-forest-green text-cream' : 'bg-cream text-forest-green'}`}>
+            {range ? `$${range.replace('-', '-$')}${range === '2000' ? '+' : ''}` : 'All'}
+          </ToggleGroupItem>
+        ))}
+      </ToggleGroup>
+    </div>
+  );
+
+  const renderMaterialOptions = () => (
+    <div className="mb-4">
+      <label className="block text-sm font-medium text-forest-green mb-2">Material</label>
+      <ToggleGroup type="single" value={filters.material} onValueChange={(value) => handleFilterChange('material', value || '')}>
+        {materials.map((material) => (
+          <ToggleGroupItem key={material} value={material} className={`${filters.material === material ? 'bg-forest-green text-cream' : 'bg-cream text-forest-green'}`}>
+            {material || 'All'}
+          </ToggleGroupItem>
+        ))}
+      </ToggleGroup>
+    </div>
+  );
+
+  // For mobile view
+  const mobileFilters = () => (
+    <div className="md:hidden">
+      <Button
         onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden w-full bg-forest-green text-cream py-3 px-4 rounded-lg flex items-center justify-center space-x-2 mb-4"
+        className="w-full bg-forest-green text-cream hover:bg-forest-green-light flex items-center justify-center gap-2"
       >
         <Filter className="w-5 h-5" />
         <span>Filters</span>
-      </button>
+      </Button>
 
-      <div className={`${isOpen ? 'block' : 'hidden'} md:block bg-white rounded-lg shadow-lg p-6 mb-6`}>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-          <div>
-            <label className="block text-sm font-medium text-forest-green mb-2">Category</label>
-            <select
-              value={filters.category}
-              onChange={(e) => handleFilterChange('category', e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent"
-            >
-              {categories.map((category) => (
-                <option key={category} value={category}>
-                  {category || 'All Categories'}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-forest-green mb-2">Price Range</label>
-            <select
-              value={filters.priceRange}
-              onChange={(e) => handleFilterChange('priceRange', e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent"
-            >
-              {priceRanges.map((range) => (
-                <option key={range} value={range}>
-                  {range ? `$${range.replace('-', ' - $')}${range === '2000' ? '+' : ''}` : 'All Prices'}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-forest-green mb-2">Material</label>
-            <select
-              value={filters.material}
-              onChange={(e) => handleFilterChange('material', e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent"
-            >
-              {materials.map((material) => (
-                <option key={material} value={material}>
-                  {material || 'All Materials'}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <button
-              onClick={clearFilters}
-              className="w-full bg-cream border-2 border-forest-green text-forest-green py-3 px-4 rounded-lg hover:bg-forest-green hover:text-cream transition-colors duration-300"
-            >
-              Clear Filters
-            </button>
-          </div>
+      {isOpen && (
+        <div className="mt-4 p-4 bg-white rounded-lg shadow-lg border border-cream-dark">
+          {renderCategoryOptions()}
+          {renderPriceOptions()}
+          {renderMaterialOptions()}
+          <Button 
+            onClick={clearFilters} 
+            className="w-full bg-cream border-2 border-forest-green text-forest-green hover:bg-forest-green hover:text-cream transition-colors duration-300"
+          >
+            Clear Filters
+          </Button>
         </div>
-      </div>
+      )}
+    </div>
+  );
+
+  // For desktop view
+  const desktopFilters = () => (
+    <div className="hidden md:flex justify-center space-x-4 mb-8">
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="outline" className="bg-cream border-forest-green text-forest-green hover:bg-forest-green hover:text-cream">
+            Categories
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-4 bg-white border-forest-green">
+          {renderCategoryOptions()}
+        </PopoverContent>
+      </Popover>
+
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="outline" className="bg-cream border-forest-green text-forest-green hover:bg-forest-green hover:text-cream">
+            Price Range
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-4 bg-white border-forest-green">
+          {renderPriceOptions()}
+        </PopoverContent>
+      </Popover>
+
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="outline" className="bg-cream border-forest-green text-forest-green hover:bg-forest-green hover:text-cream">
+            Material
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-4 bg-white border-forest-green">
+          {renderMaterialOptions()}
+        </PopoverContent>
+      </Popover>
+
+      {(filters.category || filters.priceRange || filters.material) && (
+        <Button 
+          onClick={clearFilters} 
+          variant="outline" 
+          className="bg-cream border-forest-green text-forest-green hover:bg-forest-green hover:text-cream"
+        >
+          Clear Filters
+        </Button>
+      )}
+    </div>
+  );
+
+  return (
+    <div className="mb-8">
+      {mobileFilters()}
+      {desktopFilters()}
     </div>
   );
 };

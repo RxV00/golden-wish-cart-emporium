@@ -6,6 +6,7 @@ import ProductGrid from '@/components/ProductGrid';
 import Footer from '@/components/Footer';
 import { CartProvider } from '@/contexts/CartContext';
 import { WishlistProvider } from '@/contexts/WishlistContext';
+import { Toaster } from 'sonner';
 
 const Index = () => {
   return (
@@ -16,6 +17,7 @@ const Index = () => {
           <Hero />
           <ProductGrid />
           <Footer />
+          <Toaster position="top-right" />
         </div>
       </WishlistProvider>
     </CartProvider>
