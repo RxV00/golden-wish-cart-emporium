@@ -10,7 +10,7 @@ interface ProtectedRouteProps {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { user, loading } = useAuth();
 
-  console.log('ProtectedRoute check:', { user: user?.email, loading });
+  console.log('ProtectedRoute: Checking auth state:', { user: user?.email, loading });
 
   if (loading) {
     return (
@@ -24,10 +24,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }
 
   if (!user) {
-    console.log('No user found, redirecting to auth');
+    console.log('ProtectedRoute: No user found, redirecting to auth');
     return <Navigate to="/auth" replace />;
   }
 
+  console.log('ProtectedRoute: User authenticated, rendering children');
   return <>{children}</>;
 };
 

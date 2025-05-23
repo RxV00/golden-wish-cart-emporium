@@ -1,5 +1,6 @@
 
 import { Toaster } from "@/components/ui/toaster";
+import { Toaster as SonnerToaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -22,6 +23,16 @@ const App = () => (
         <CartProvider>
           <WishlistProvider>
             <Toaster />
+            <SonnerToaster 
+              position="top-center"
+              toastOptions={{
+                style: {
+                  background: '#2D3748',
+                  color: '#F7FAFC',
+                  border: '1px solid #4A5568',
+                },
+              }}
+            />
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Index />} />

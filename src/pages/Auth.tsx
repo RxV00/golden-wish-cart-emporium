@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,52 +21,96 @@ const Auth = () => {
   });
 
   const { user, signIn, signUp, resetPassword } = useAuth();
+  const navigate = useNavigate();
 
   // Redirect if already logged in
   if (user) {
+    console.log('Auth: User already logged in, redirecting to home');
     return <Navigate to="/" replace />;
   }
 
+  const validateForm = () => {
+    if (!formData.email) {
+      toast.error('Email is required');
+      return false;
+    }
+    
+    if (!formData.email.includes('@')) {
+      toast.error('Please enter a valid email address');
+      return false;
+    }
+
+    if (!isResetPassword && !formData.password) {
+      toast.error('Password is required');
+      return false;
+    }
+
+    if (!isResetPassword && formData.password.length < 6) {
+      toast.error('Password must be at least 6 characters long');
+      return false;
+    }
+
+    if (!isLogin && !isResetPassword) {
+      if (!formData.firstName.trim()) {
+        toast.error('First name is required');
+        return false;
+      }
+      if (!formData.lastName.trim()) {
+        toast.error('Last name is required');
+        return false;
+      }
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
     setLoading(true);
+    console.log('Auth: Submitting form for:', formData.email, 'Mode:', isResetPassword ? 'reset' : isLogin ? 'login' : 'signup');
 
     try {
       if (isResetPassword) {
-        console.log('Submitting password reset for:', formData.email);
         const { error } = await resetPassword(formData.email);
         if (error) {
-          console.error('Password reset error:', error);
+          console.error('Auth: Password reset error:', error);
           toast.error(`Password reset failed: ${error.message}`);
         } else {
           toast.success('Password reset email sent! Check your inbox.');
           setIsResetPassword(false);
+          setIsLogin(true);
         }
       } else if (isLogin) {
-        console.log('Submitting login for:', formData.email);
         const { error } = await signIn(formData.email, formData.password);
         if (error) {
-          console.error('Sign in error:', error);
-          if (error.message.includes('Email not confirmed')) {
-            toast.error('Please check your email and click the confirmation link before signing in.');
-          } else if (error.message.includes('Invalid login credentials')) {
-            toast.error('Invalid email or password. Please check your credentials.');
+          console.error('Auth: Sign in error:', error);
+          if (error.message.includes('Invalid login credentials')) {
+            toast.error('Invalid email or password. Please check your credentials and try again.');
+          } else if (error.message.includes('Email not confirmed')) {
+            toast.error('Please check your email and confirm your account first.');
           } else {
             toast.error(`Sign in failed: ${error.message}`);
           }
         } else {
+          console.log('Auth: Sign in successful, redirecting...');
           toast.success('Welcome back!');
+          navigate('/');
         }
       } else {
-        console.log('Submitting signup for:', formData.email);
-        const { error } = await signUp(
+        const { data, error } = await signUp(
           formData.email,
           formData.password,
           formData.firstName,
           formData.lastName
         );
+        
         if (error) {
-          console.error('Sign up error:', error);
+          console.error('Auth: Sign up error:', error);
           if (error.message.includes('already registered')) {
             toast.error('This email is already registered. Please sign in instead.');
             setIsLogin(true);
@@ -74,11 +118,18 @@ const Auth = () => {
             toast.error(`Sign up failed: ${error.message}`);
           }
         } else {
-          toast.success('Account created successfully! Please check your email to verify your account.');
+          console.log('Auth: Sign up successful:', data);
+          if (data.user && !data.session) {
+            toast.success('Account created! Please check your email to verify your account before signing in.');
+            setIsLogin(true);
+          } else {
+            toast.success('Account created successfully! You are now signed in.');
+            navigate('/');
+          }
         }
       }
     } catch (error: any) {
-      console.error('Unexpected error:', error);
+      console.error('Auth: Unexpected error:', error);
       toast.error('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
@@ -90,6 +141,12 @@ const Auth = () => {
       ...prev,
       [e.target.name]: e.target.value
     }));
+  };
+
+  const switchMode = () => {
+    setIsLogin(!isLogin);
+    setIsResetPassword(false);
+    setFormData(prev => ({ ...prev, password: '', firstName: '', lastName: '' }));
   };
 
   return (
@@ -167,7 +224,7 @@ const Auth = () => {
                   <Input
                     type={showPassword ? 'text' : 'password'}
                     name="password"
-                    placeholder="Password"
+                    placeholder="Password (min 6 characters)"
                     value={formData.password}
                     onChange={handleInputChange}
                     className="pl-10 pr-10 border-forest-green/20 focus:border-forest-green"
@@ -192,7 +249,7 @@ const Auth = () => {
                 {loading ? (
                   <div className="flex items-center">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-cream mr-2"></div>
-                    Loading...
+                    {isResetPassword ? 'Sending...' : isLogin ? 'Signing in...' : 'Creating account...'}
                   </div>
                 ) : (
                   isResetPassword ? 'Send Reset Email' : isLogin ? 'Sign In' : 'Create Account'
@@ -204,8 +261,9 @@ const Auth = () => {
               {!isResetPassword && (
                 <>
                   <button
-                    onClick={() => setIsLogin(!isLogin)}
+                    onClick={switchMode}
                     className="text-forest-green hover:text-gold transition-colors text-sm"
+                    disabled={loading}
                   >
                     {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
                   </button>
@@ -215,6 +273,7 @@ const Auth = () => {
                       <button
                         onClick={() => setIsResetPassword(true)}
                         className="text-forest-green/70 hover:text-forest-green transition-colors text-sm"
+                        disabled={loading}
                       >
                         Forgot your password?
                       </button>
@@ -225,8 +284,12 @@ const Auth = () => {
 
               {isResetPassword && (
                 <button
-                  onClick={() => setIsResetPassword(false)}
+                  onClick={() => {
+                    setIsResetPassword(false);
+                    setIsLogin(true);
+                  }}
                   className="text-forest-green hover:text-gold transition-colors text-sm"
+                  disabled={loading}
                 >
                   Back to sign in
                 </button>
