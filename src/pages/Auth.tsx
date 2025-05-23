@@ -1,7 +1,7 @@
 
-import React, { useState } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Lock, User, ArrowLeft } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
+import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,6 +22,14 @@ const Auth = () => {
 
   const { user, signIn, signUp, resetPassword } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isConfirmed = searchParams.get('confirmed') === 'true';
+
+  useEffect(() => {
+    if (isConfirmed) {
+      toast.success('🎉 Email confirmed! You can now sign in to your account.');
+    }
+  }, [isConfirmed]);
 
   // Redirect if already logged in
   if (user) {
@@ -119,13 +127,11 @@ const Auth = () => {
           }
         } else {
           console.log('Auth: Sign up successful:', data);
-          if (data.user && !data.session) {
-            toast.success('Account created! Please check your email to verify your account before signing in.');
-            setIsLogin(true);
-          } else {
-            toast.success('Account created successfully! You are now signed in.');
-            navigate('/');
-          }
+          toast.success('Account created! Please check your email to verify your account before signing in.', {
+            duration: 6000,
+          });
+          setIsLogin(true);
+          setFormData(prev => ({ ...prev, password: '' }));
         }
       }
     } catch (error: any) {
@@ -148,6 +154,39 @@ const Auth = () => {
     setIsResetPassword(false);
     setFormData(prev => ({ ...prev, password: '', firstName: '', lastName: '' }));
   };
+
+  if (isConfirmed) {
+    return (
+      <div className="min-h-screen bg-cream flex items-center justify-center px-4 py-8">
+        <div className="w-full max-w-md">
+          <Card className="border-forest-green/20 shadow-lg">
+            <CardHeader className="text-center">
+              <div className="mx-auto mb-4">
+                <CheckCircle className="h-16 w-16 text-green-600 mx-auto" />
+              </div>
+              <CardTitle className="text-2xl font-bold text-forest-green">
+                Email Confirmed! ✨
+              </CardTitle>
+              <p className="text-forest-green/70">
+                Your account has been successfully verified. You can now sign in to access your Lumière Jewelry account.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <Button
+                onClick={() => {
+                  navigate('/auth');
+                  window.location.reload();
+                }}
+                className="w-full bg-forest-green text-cream hover:bg-forest-green/90"
+              >
+                Continue to Sign In
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-cream flex items-center justify-center px-4 py-8">
