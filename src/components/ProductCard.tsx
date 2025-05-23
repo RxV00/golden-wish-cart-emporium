@@ -25,10 +25,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     
     if (isWishlisted) {
       removeFromWishlist(product.id);
-      toast.success("Removed from wishlist");
+      toast.success("Removed from wishlist", {
+        position: "top-center"
+      });
     } else {
       addToWishlist(product);
-      toast.success("Added to wishlist");
+      toast.success("Added to wishlist", {
+        position: "top-center"
+      });
     }
     
     setTimeout(() => {
@@ -40,7 +44,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     e.preventDefault();
     setIsAddingToCart(true);
     addToCart(product);
-    toast.success("Added to cart");
+    toast.success("Added to cart", {
+      position: "top-center"
+    });
     
     setTimeout(() => {
       setIsAddingToCart(false);

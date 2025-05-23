@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, ShoppingCart, Heart } from 'lucide-react';
@@ -46,10 +47,14 @@ const ProductDetail = () => {
     
     if (isWishlisted) {
       removeFromWishlist(product.id);
-      toast.success("Removed from wishlist");
+      toast.success("Removed from wishlist", {
+        position: "top-center"
+      });
     } else {
       addToWishlist(product);
-      toast.success("Added to wishlist");
+      toast.success("Added to wishlist", {
+        position: "top-center"
+      });
     }
     
     setTimeout(() => {
@@ -60,7 +65,9 @@ const ProductDetail = () => {
   const handleAddToCart = () => {
     setIsAddingToCart(true);
     addToCart(product);
-    toast.success("Added to cart");
+    toast.success("Added to cart", {
+      position: "top-center"
+    });
     
     setTimeout(() => {
       setIsAddingToCart(false);
