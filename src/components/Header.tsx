@@ -77,9 +77,9 @@ const Header = () => {
       {isMenuOpen && (
         <div className="md:hidden fixed inset-0 z-40 bg-black bg-opacity-50" onClick={() => setIsMenuOpen(false)}>
           <nav 
-            className={`fixed top-0 right-0 h-full w-3/4 max-w-sm bg-forest-green text-cream shadow-2xl transform transition-transform duration-300 ease-in-out ${
-              isMenuOpen ? 'translate-x-0' : 'translate-x-full'
-            } mr-4`}
+            className={`fixed top-0 left-0 h-full w-3/4 max-w-sm bg-forest-green text-cream shadow-2xl transform transition-transform duration-300 ease-in-out ${
+              isMenuOpen ? 'translate-x-0' : '-translate-x-full'
+            } ml-4`}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-6 pt-20">
