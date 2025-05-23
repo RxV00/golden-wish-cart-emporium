@@ -6,6 +6,14 @@ import {
   PopoverContent, 
   PopoverTrigger 
 } from '@/components/ui/popover';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 import { 
   ToggleGroup, 
   ToggleGroupItem 
@@ -17,7 +25,6 @@ interface FilterProps {
 }
 
 const ProductFilter: React.FC<FilterProps> = ({ onFilterChange }) => {
-  const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useState({
     category: '',
     priceRange: '',
@@ -43,11 +50,11 @@ const ProductFilter: React.FC<FilterProps> = ({ onFilterChange }) => {
   };
 
   const renderCategoryOptions = () => (
-    <div className="mb-4">
-      <label className="block text-sm font-medium text-forest-green mb-2">Category</label>
-      <ToggleGroup type="single" value={filters.category} onValueChange={(value) => handleFilterChange('category', value || '')}>
+    <div className="mb-6">
+      <label className="block text-sm font-medium text-forest-green mb-3">Category</label>
+      <ToggleGroup type="single" value={filters.category} onValueChange={(value) => handleFilterChange('category', value || '')} className="flex flex-wrap gap-2">
         {categories.map((category) => (
-          <ToggleGroupItem key={category} value={category} className={`${filters.category === category ? 'bg-forest-green text-cream' : 'bg-cream text-forest-green'}`}>
+          <ToggleGroupItem key={category} value={category} className={`${filters.category === category ? 'bg-forest-green text-cream' : 'bg-cream text-forest-green border border-forest-green'} px-3 py-2 rounded-md text-sm`}>
             {category || 'All'}
           </ToggleGroupItem>
         ))}
@@ -56,11 +63,11 @@ const ProductFilter: React.FC<FilterProps> = ({ onFilterChange }) => {
   );
 
   const renderPriceOptions = () => (
-    <div className="mb-4">
-      <label className="block text-sm font-medium text-forest-green mb-2">Price Range</label>
-      <ToggleGroup type="single" value={filters.priceRange} onValueChange={(value) => handleFilterChange('priceRange', value || '')}>
+    <div className="mb-6">
+      <label className="block text-sm font-medium text-forest-green mb-3">Price Range</label>
+      <ToggleGroup type="single" value={filters.priceRange} onValueChange={(value) => handleFilterChange('priceRange', value || '')} className="flex flex-wrap gap-2">
         {priceRanges.map((range) => (
-          <ToggleGroupItem key={range} value={range} className={`${filters.priceRange === range ? 'bg-forest-green text-cream' : 'bg-cream text-forest-green'}`}>
+          <ToggleGroupItem key={range} value={range} className={`${filters.priceRange === range ? 'bg-forest-green text-cream' : 'bg-cream text-forest-green border border-forest-green'} px-3 py-2 rounded-md text-sm`}>
             {range ? `$${range.replace('-', '-$')}${range === '2000' ? '+' : ''}` : 'All'}
           </ToggleGroupItem>
         ))}
@@ -69,11 +76,11 @@ const ProductFilter: React.FC<FilterProps> = ({ onFilterChange }) => {
   );
 
   const renderMaterialOptions = () => (
-    <div className="mb-4">
-      <label className="block text-sm font-medium text-forest-green mb-2">Material</label>
-      <ToggleGroup type="single" value={filters.material} onValueChange={(value) => handleFilterChange('material', value || '')}>
+    <div className="mb-6">
+      <label className="block text-sm font-medium text-forest-green mb-3">Material</label>
+      <ToggleGroup type="single" value={filters.material} onValueChange={(value) => handleFilterChange('material', value || '')} className="flex flex-wrap gap-2">
         {materials.map((material) => (
-          <ToggleGroupItem key={material} value={material} className={`${filters.material === material ? 'bg-forest-green text-cream' : 'bg-cream text-forest-green'}`}>
+          <ToggleGroupItem key={material} value={material} className={`${filters.material === material ? 'bg-forest-green text-cream' : 'bg-cream text-forest-green border border-forest-green'} px-3 py-2 rounded-md text-sm`}>
             {material || 'All'}
           </ToggleGroupItem>
         ))}
@@ -82,14 +89,14 @@ const ProductFilter: React.FC<FilterProps> = ({ onFilterChange }) => {
   );
 
   const renderColorOptions = () => (
-    <div className="mb-4">
-      <label className="block text-sm font-medium text-forest-green mb-2">Color</label>
-      <ToggleGroup type="single" value={filters.color} onValueChange={(value) => handleFilterChange('color', value || '')}>
+    <div className="mb-6">
+      <label className="block text-sm font-medium text-forest-green mb-3">Color</label>
+      <ToggleGroup type="single" value={filters.color} onValueChange={(value) => handleFilterChange('color', value || '')} className="flex flex-wrap gap-2">
         {colors.map((color) => (
           <ToggleGroupItem 
             key={color} 
             value={color} 
-            className={`${filters.color === color ? 'bg-forest-green text-cream' : 'bg-cream text-forest-green'}`}
+            className={`${filters.color === color ? 'bg-forest-green text-cream' : 'bg-cream text-forest-green border border-forest-green'} px-3 py-2 rounded-md text-sm`}
           >
             {color || 'All'}
           </ToggleGroupItem>
@@ -98,31 +105,37 @@ const ProductFilter: React.FC<FilterProps> = ({ onFilterChange }) => {
     </div>
   );
 
-  // For mobile view
+  // For mobile view - using Sheet component
   const mobileFilters = () => (
     <div className="md:hidden">
-      <Button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full bg-forest-green text-cream hover:bg-forest-green-light flex items-center justify-center gap-2"
-      >
-        <Filter className="w-5 h-5" />
-        <span>Filters</span>
-      </Button>
-
-      {isOpen && (
-        <div className="mt-4 p-4 bg-white rounded-lg shadow-lg border border-cream-dark">
-          {renderCategoryOptions()}
-          {renderPriceOptions()}
-          {renderMaterialOptions()}
-          {renderColorOptions()}
-          <Button 
-            onClick={clearFilters} 
-            className="w-full bg-cream border-2 border-forest-green text-forest-green hover:bg-forest-green hover:text-cream transition-colors duration-300"
-          >
-            Clear Filters
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button className="w-full bg-forest-green text-cream hover:bg-forest-green/90 flex items-center justify-center gap-2">
+            <Filter className="w-5 h-5" />
+            <span>Filters</span>
           </Button>
-        </div>
-      )}
+        </SheetTrigger>
+        <SheetContent side="bottom" className="bg-cream">
+          <SheetHeader>
+            <SheetTitle className="text-forest-green text-left">Filter Products</SheetTitle>
+            <SheetDescription className="text-forest-green/70 text-left">
+              Choose your preferences to find the perfect jewelry
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-6 space-y-2">
+            {renderCategoryOptions()}
+            {renderPriceOptions()}
+            {renderMaterialOptions()}
+            {renderColorOptions()}
+            <Button 
+              onClick={clearFilters} 
+              className="w-full bg-cream border-2 border-forest-green text-forest-green hover:bg-forest-green hover:text-cream transition-colors duration-300"
+            >
+              Clear Filters
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 
