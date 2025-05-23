@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, CheckCircle } from 'lucide-react';
@@ -119,15 +118,21 @@ const Auth = () => {
         
         if (error) {
           console.error('Auth: Sign up error:', error);
-          if (error.message.includes('already registered')) {
-            toast.error('This email is already registered. Please sign in instead.');
+          if (error.message.includes('User already registered') || 
+              error.message.includes('already registered') ||
+              error.message.includes('email address is already registered')) {
+            toast.error('This email address is already registered. Please sign in instead or use a different email.');
+            setIsLogin(true);
+          } else if (error.message.includes('duplicate key') || 
+                     error.message.includes('unique constraint')) {
+            toast.error('This email address is already in use. Please use a different email or sign in.');
             setIsLogin(true);
           } else {
             toast.error(`Sign up failed: ${error.message}`);
           }
         } else {
           console.log('Auth: Sign up successful:', data);
-          toast.success('Account created! Please check your email to verify your account before signing in.', {
+          toast.success('Account created successfully! Please check your email to verify your account before signing in.', {
             duration: 6000,
           });
           setIsLogin(true);
@@ -136,7 +141,12 @@ const Auth = () => {
       }
     } catch (error: any) {
       console.error('Auth: Unexpected error:', error);
-      toast.error('An unexpected error occurred. Please try again.');
+      if (error.message?.includes('duplicate') || error.message?.includes('unique')) {
+        toast.error('This email address is already registered. Please sign in instead.');
+        setIsLogin(true);
+      } else {
+        toast.error('An unexpected error occurred. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
