@@ -70,22 +70,31 @@ const Header = () => {
               </button>
             </div>
           </div>
-
-          {/* Mobile Navigation */}
-          {isMenuOpen && (
-            <nav className="md:hidden mt-4 pb-4 border-t border-cream/20 pt-4">
-              <div className="flex flex-col space-y-3">
-                <a href="#" className="hover:text-gold transition-colors duration-300">Home</a>
-                <a href="#" className="hover:text-gold transition-colors duration-300">Rings</a>
-                <a href="#" className="hover:text-gold transition-colors duration-300">Necklaces</a>
-                <a href="#" className="hover:text-gold transition-colors duration-300">Earrings</a>
-                <a href="#" className="hover:text-gold transition-colors duration-300">Bracelets</a>
-                <a href="#" className="hover:text-gold transition-colors duration-300">About</a>
-              </div>
-            </nav>
-          )}
         </div>
       </header>
+
+      {/* Mobile Navigation Overlay */}
+      {isMenuOpen && (
+        <div className="md:hidden fixed inset-0 z-40 bg-black bg-opacity-50" onClick={() => setIsMenuOpen(false)}>
+          <nav 
+            className={`fixed top-0 right-0 h-full w-3/4 max-w-sm bg-forest-green text-cream shadow-2xl transform transition-transform duration-300 ease-in-out ${
+              isMenuOpen ? 'translate-x-0' : 'translate-x-full'
+            } mr-4`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-6 pt-20">
+              <div className="flex flex-col space-y-6">
+                <a href="#" className="text-lg hover:text-gold transition-colors duration-300 border-b border-cream/20 pb-3">Home</a>
+                <a href="#" className="text-lg hover:text-gold transition-colors duration-300 border-b border-cream/20 pb-3">Rings</a>
+                <a href="#" className="text-lg hover:text-gold transition-colors duration-300 border-b border-cream/20 pb-3">Necklaces</a>
+                <a href="#" className="text-lg hover:text-gold transition-colors duration-300 border-b border-cream/20 pb-3">Earrings</a>
+                <a href="#" className="text-lg hover:text-gold transition-colors duration-300 border-b border-cream/20 pb-3">Bracelets</a>
+                <a href="#" className="text-lg hover:text-gold transition-colors duration-300">About</a>
+              </div>
+            </div>
+          </nav>
+        </div>
+      )}
 
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
       <WishlistDrawer isOpen={isWishlistOpen} onClose={() => setIsWishlistOpen(false)} />
