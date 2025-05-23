@@ -33,21 +33,32 @@ const Auth = () => {
 
     try {
       if (isResetPassword) {
+        console.log('Submitting password reset for:', formData.email);
         const { error } = await resetPassword(formData.email);
         if (error) {
-          toast.error(error.message);
+          console.error('Password reset error:', error);
+          toast.error(`Password reset failed: ${error.message}`);
         } else {
           toast.success('Password reset email sent! Check your inbox.');
           setIsResetPassword(false);
         }
       } else if (isLogin) {
+        console.log('Submitting login for:', formData.email);
         const { error } = await signIn(formData.email, formData.password);
         if (error) {
-          toast.error(error.message);
+          console.error('Sign in error:', error);
+          if (error.message.includes('Email not confirmed')) {
+            toast.error('Please check your email and click the confirmation link before signing in.');
+          } else if (error.message.includes('Invalid login credentials')) {
+            toast.error('Invalid email or password. Please check your credentials.');
+          } else {
+            toast.error(`Sign in failed: ${error.message}`);
+          }
         } else {
           toast.success('Welcome back!');
         }
       } else {
+        console.log('Submitting signup for:', formData.email);
         const { error } = await signUp(
           formData.email,
           formData.password,
@@ -55,13 +66,20 @@ const Auth = () => {
           formData.lastName
         );
         if (error) {
-          toast.error(error.message);
+          console.error('Sign up error:', error);
+          if (error.message.includes('already registered')) {
+            toast.error('This email is already registered. Please sign in instead.');
+            setIsLogin(true);
+          } else {
+            toast.error(`Sign up failed: ${error.message}`);
+          }
         } else {
           toast.success('Account created successfully! Please check your email to verify your account.');
         }
       }
     } catch (error: any) {
-      toast.error('An unexpected error occurred');
+      console.error('Unexpected error:', error);
+      toast.error('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -154,6 +172,7 @@ const Auth = () => {
                     onChange={handleInputChange}
                     className="pl-10 pr-10 border-forest-green/20 focus:border-forest-green"
                     required
+                    minLength={6}
                   />
                   <button
                     type="button"
