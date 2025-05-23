@@ -1,8 +1,8 @@
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import type { CarouselApi } from '@/components/ui/carousel';
 
 // Featured deals/campaigns data
 const campaignItems = [
@@ -36,6 +36,21 @@ const campaignItems = [
 ];
 
 const DealsCarousel = () => {
+  const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    if (!api) {
+      return;
+    }
+
+    setCurrent(api.selectedScrollSnap());
+
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap());
+    });
+  }, [api]);
+
   return (
     <section className="py-16 bg-gradient-to-r from-cream to-cream-dark overflow-hidden">
       <div className="container mx-auto px-4">
@@ -44,7 +59,7 @@ const DealsCarousel = () => {
         </h2>
         
         <div className="relative mx-auto max-w-5xl">
-          <Carousel opts={{ loop: true }}>
+          <Carousel opts={{ loop: true }} setApi={setApi}>
             <CarouselContent>
               {campaignItems.map((item) => (
                 <CarouselItem key={item.id} className="md:basis-full">
@@ -91,7 +106,12 @@ const DealsCarousel = () => {
           {/* Custom carousel indicators */}
           <div className="flex justify-center gap-2 mt-6">
             {campaignItems.map((_, index) => (
-              <div key={index} className="w-2 h-2 rounded-full bg-forest-green/30"></div>
+              <div 
+                key={index} 
+                className={`w-2 h-2 rounded-full transition-colors duration-300 ${
+                  index === current ? 'bg-black' : 'bg-forest-green/30'
+                }`}
+              ></div>
             ))}
           </div>
         </div>
